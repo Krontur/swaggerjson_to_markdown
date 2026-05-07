@@ -39,13 +39,13 @@ node -v
 Clona el repositorio:
 
 ```bash
-git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+git clone https://github.com/Krontur/swaggerjson_to_markdown.git
 ```
 
 Entra en la carpeta del proyecto:
 
 ```bash
-cd TU_REPOSITORIO
+cd swaggerjson_to_markdown
 ```
 
 Instala las dependencias:
