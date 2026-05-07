@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "scripts": {
+    "api:docs": "node ./scripts/openapi-swagger-like-md.mjs"
+  }
+}
