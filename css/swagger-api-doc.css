@@ -1,141 +1,510 @@
-/* ============================
-   API Documentation - Swagger-like
-   For Obsidian Reading View
-   ============================ */
+/* ==========================================================================
+   Swagger-like API Documentation for Obsidian
 
-.markdown-preview-view h1 {
-  font-size: 2.2em;
-  border-bottom: 2px solid var(--background-modifier-border);
-  padding-bottom: 0.4em;
-  margin-bottom: 0.8em;
+   Required in every note where the styles must apply:
+
+   ---
+   cssclasses:
+     - swagger-api-doc
+   ---
+
+   The CSS intentionally targets only api-* classes.
+   It does not style generic h1, h2, table, pre, code, etc.
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc,
+.markdown-rendered.swagger-api-doc {
+  --api-get: #61affe;
+  --api-post: #49cc90;
+  --api-put: #fca130;
+  --api-delete: #f93e3e;
+  --api-patch: #50e3c2;
+  --api-options: #0d5aa7;
+  --api-head: #9012fe;
+  --api-border-radius: 8px;
+  --api-soft-border: var(--background-modifier-border);
 }
 
-.markdown-preview-view h2 {
-  margin-top: 2.5em;
-  padding: 0.6em 0.8em;
-  border-left: 6px solid #49cc90;
-  background: rgba(73, 204, 144, 0.08);
-  border-radius: 8px;
+/* ==========================================================================
+   Root containers
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-full-document,
+.markdown-rendered.swagger-api-doc .api-full-document,
+.markdown-preview-view.swagger-api-doc .api-fragment,
+.markdown-rendered.swagger-api-doc .api-fragment {
+  display: block;
 }
 
-.markdown-preview-view h3 {
-  margin-top: 2em;
-  padding: 0.8em 1em;
-  border: 1px solid var(--background-modifier-border);
-  border-left: 6px solid #61affe;
-  border-radius: 10px;
-  background: var(--background-secondary);
+/* ==========================================================================
+   Document title and main sections
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-document-title,
+.markdown-rendered.swagger-api-doc .api-document-title {
+  margin: 0 0 0.8em 0 !important;
+  padding-bottom: 0.35em !important;
+  border-bottom: 2px solid var(--api-soft-border) !important;
+  color: var(--text-normal) !important;
+  font-size: 2.2em !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
 }
 
-.markdown-preview-view h4 {
-  margin-top: 1.4em;
-  color: var(--text-accent);
-  border-bottom: 1px solid var(--background-modifier-border);
-  padding-bottom: 0.25em;
+.markdown-preview-view.swagger-api-doc .api-main-section-title,
+.markdown-rendered.swagger-api-doc .api-main-section-title {
+  margin: 2em 0 1em 0 !important;
+  padding-bottom: 0.3em !important;
+  border-bottom: 2px solid var(--api-soft-border) !important;
+  color: var(--text-normal) !important;
+  font-size: 1.8em !important;
+  font-weight: 800 !important;
 }
 
-.markdown-preview-view h5 {
-  margin-top: 1.2em;
-  font-size: 1em;
-  font-weight: 700;
-  color: var(--text-normal);
+/* ==========================================================================
+   API info card
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-info-card,
+.markdown-rendered.swagger-api-doc .api-info-card {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  margin: 1em 0 1.5em 0 !important;
 }
 
-.markdown-preview-view h6 {
-  font-size: 0.9em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.markdown-preview-view.swagger-api-doc .api-info-item,
+.markdown-rendered.swagger-api-doc .api-info-item {
+  padding: 10px 14px !important;
+  border: 1px solid var(--api-soft-border) !important;
+  border-radius: var(--api-border-radius) !important;
+  background: var(--background-secondary) !important;
 }
 
-/* Tables */
-.markdown-preview-view table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1em 0;
-  font-size: 0.92em;
+.markdown-preview-view.swagger-api-doc .api-info-item span,
+.markdown-rendered.swagger-api-doc .api-info-item span {
+  display: block !important;
+  color: var(--text-muted) !important;
+  font-size: 0.85em !important;
+  margin-bottom: 4px !important;
 }
 
-.markdown-preview-view th {
-  background: var(--background-secondary);
-  color: var(--text-normal);
-  font-weight: 700;
+/* ==========================================================================
+   Descriptions
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-description,
+.markdown-preview-view.swagger-api-doc .api-tag-description,
+.markdown-preview-view.swagger-api-doc .api-operation-description,
+.markdown-rendered.swagger-api-doc .api-description,
+.markdown-rendered.swagger-api-doc .api-tag-description,
+.markdown-rendered.swagger-api-doc .api-operation-description {
+  margin: 1em 0 !important;
+  padding: 12px 14px !important;
+  border-left: 4px solid var(--api-get) !important;
+  background: rgba(97, 175, 254, 0.08) !important;
+  border-radius: 6px !important;
 }
 
-.markdown-preview-view th,
-.markdown-preview-view td {
-  border: 1px solid var(--background-modifier-border);
-  padding: 8px 10px;
-  vertical-align: top;
+/* ==========================================================================
+   Servers
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-servers,
+.markdown-rendered.swagger-api-doc .api-servers {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 1em 0 !important;
 }
 
-/* Inline code */
-.markdown-preview-view code {
-  border-radius: 5px;
-  padding: 2px 5px;
-  font-size: 0.92em;
+.markdown-preview-view.swagger-api-doc .api-server,
+.markdown-rendered.swagger-api-doc .api-server {
+  padding: 10px 14px !important;
+  border-left: 4px solid var(--api-get) !important;
+  background: rgba(97, 175, 254, 0.08) !important;
+  border-radius: 6px !important;
 }
 
-/* Code blocks */
-.markdown-preview-view pre {
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
-  padding: 14px;
-  background: var(--code-background);
-  overflow-x: auto;
+.markdown-preview-view.swagger-api-doc .api-server code,
+.markdown-rendered.swagger-api-doc .api-server code {
+  background: transparent !important;
+  font-weight: 700 !important;
 }
 
-/* API metadata */
-.markdown-preview-view ul:first-of-type {
-  padding: 1em 1.2em;
-  background: var(--background-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--background-modifier-border);
+/* ==========================================================================
+   Tag and operation titles
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-tag-title,
+.markdown-rendered.swagger-api-doc .api-tag-title {
+  margin: 1.8em 0 0.8em 0 !important;
+  padding-bottom: 0.3em !important;
+  border-bottom: 2px solid var(--api-soft-border) !important;
+  color: var(--text-normal) !important;
+  font-size: 1.6em !important;
+  font-weight: 800 !important;
 }
 
-/* Operation blocks */
-.markdown-preview-view h3 + ul {
-  margin-top: 0;
-  padding: 0.9em 1.2em;
-  background: var(--background-primary-alt);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 0 0 10px 10px;
+.markdown-preview-view.swagger-api-doc .api-tag-title-full,
+.markdown-rendered.swagger-api-doc .api-tag-title-full {
+  font-size: 1.75em !important;
 }
 
-/* Request/response sections */
-.markdown-preview-view h4:has(+ h5),
-.markdown-preview-view h4 {
-  background: rgba(97, 175, 254, 0.08);
-  border-left: 4px solid #61affe;
-  padding: 0.5em 0.8em;
-  border-radius: 6px;
+.markdown-preview-view.swagger-api-doc .api-tag-title-fragment,
+.markdown-rendered.swagger-api-doc .api-tag-title-fragment {
+  font-size: 1.45em !important;
 }
 
-/* Schema section */
-.markdown-preview-view h2#schemas,
-.markdown-preview-view h2[data-heading="Schemas"] {
-  border-left-color: #fca130;
-  background: rgba(252, 161, 48, 0.08);
+.markdown-preview-view.swagger-api-doc .api-operation-title,
+.markdown-rendered.swagger-api-doc .api-operation-title {
+  margin: 0.8em 0 1em 0 !important;
+  color: var(--text-normal) !important;
+  font-size: 1.25em !important;
+  font-weight: 800 !important;
 }
 
-/* Schema names */
-.markdown-preview-view h2[data-heading="Schemas"] ~ h3 {
-  border-left-color: #fca130;
+.markdown-preview-view.swagger-api-doc .api-schema-title,
+.markdown-rendered.swagger-api-doc .api-schema-title {
+  margin: 1.5em 0 0.8em 0 !important;
+  color: var(--text-normal) !important;
+  font-size: 1.25em !important;
+  font-weight: 800 !important;
 }
 
-/* Deprecated marker */
-.markdown-preview-view h3:has(span),
-.markdown-preview-view h3 {
-  scroll-margin-top: 80px;
+.markdown-preview-view.swagger-api-doc .api-model-title,
+.markdown-rendered.swagger-api-doc .api-model-title {
+  margin: 1.2em 0 0.6em 0 !important;
+  color: var(--text-normal) !important;
+  font-size: 1em !important;
+  font-weight: 800 !important;
 }
 
-/* Links */
-.markdown-preview-view a {
-  color: #4990e2;
-  font-weight: 500;
-  text-decoration: none;
+/* ==========================================================================
+   Operation header
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-operation,
+.markdown-rendered.swagger-api-doc .api-operation {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 1.4em 0 0.8em 0 !important;
+  padding: 12px 14px !important;
+  border-radius: var(--api-border-radius) !important;
+  border: 1px solid var(--api-soft-border) !important;
+  background: var(--background-secondary) !important;
 }
 
-.markdown-preview-view a:hover {
-  text-decoration: underline;
+.markdown-preview-view.swagger-api-doc .api-method,
+.markdown-rendered.swagger-api-doc .api-method {
+  display: inline-block !important;
+  min-width: 72px !important;
+  text-align: center !important;
+  padding: 6px 10px !important;
+  border-radius: 4px !important;
+  color: white !important;
+  font-weight: 800 !important;
+  font-size: 0.82em !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.2 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-path,
+.markdown-rendered.swagger-api-doc .api-path {
+  font-size: 1em !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  color: var(--text-normal) !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+/* GET */
+
+.markdown-preview-view.swagger-api-doc .api-get,
+.markdown-rendered.swagger-api-doc .api-get {
+  background: rgba(97, 175, 254, 0.1) !important;
+  border-color: rgba(97, 175, 254, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-get .api-method,
+.markdown-rendered.swagger-api-doc .api-get .api-method {
+  background: var(--api-get) !important;
+}
+
+/* POST */
+
+.markdown-preview-view.swagger-api-doc .api-post,
+.markdown-rendered.swagger-api-doc .api-post {
+  background: rgba(73, 204, 144, 0.1) !important;
+  border-color: rgba(73, 204, 144, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-post .api-method,
+.markdown-rendered.swagger-api-doc .api-post .api-method {
+  background: var(--api-post) !important;
+}
+
+/* PUT */
+
+.markdown-preview-view.swagger-api-doc .api-put,
+.markdown-rendered.swagger-api-doc .api-put {
+  background: rgba(252, 161, 48, 0.1) !important;
+  border-color: rgba(252, 161, 48, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-put .api-method,
+.markdown-rendered.swagger-api-doc .api-put .api-method {
+  background: var(--api-put) !important;
+}
+
+/* DELETE */
+
+.markdown-preview-view.swagger-api-doc .api-delete,
+.markdown-rendered.swagger-api-doc .api-delete {
+  background: rgba(249, 62, 62, 0.1) !important;
+  border-color: rgba(249, 62, 62, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-delete .api-method,
+.markdown-rendered.swagger-api-doc .api-delete .api-method {
+  background: var(--api-delete) !important;
+}
+
+/* PATCH */
+
+.markdown-preview-view.swagger-api-doc .api-patch,
+.markdown-rendered.swagger-api-doc .api-patch {
+  background: rgba(80, 227, 194, 0.1) !important;
+  border-color: rgba(80, 227, 194, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-patch .api-method,
+.markdown-rendered.swagger-api-doc .api-patch .api-method {
+  background: var(--api-patch) !important;
+}
+
+/* OPTIONS */
+
+.markdown-preview-view.swagger-api-doc .api-options,
+.markdown-rendered.swagger-api-doc .api-options {
+  background: rgba(13, 90, 167, 0.1) !important;
+  border-color: rgba(13, 90, 167, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-options .api-method,
+.markdown-rendered.swagger-api-doc .api-options .api-method {
+  background: var(--api-options) !important;
+}
+
+/* HEAD */
+
+.markdown-preview-view.swagger-api-doc .api-head,
+.markdown-rendered.swagger-api-doc .api-head {
+  background: rgba(144, 18, 254, 0.1) !important;
+  border-color: rgba(144, 18, 254, 0.6) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-head .api-method,
+.markdown-rendered.swagger-api-doc .api-head .api-method {
+  background: var(--api-head) !important;
+}
+
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-section,
+.markdown-rendered.swagger-api-doc .api-section {
+  margin: 1.5em 0 0.8em 0 !important;
+  padding: 8px 12px !important;
+  font-weight: 800 !important;
+  border-radius: 6px !important;
+  background: var(--background-secondary) !important;
+  border-left: 4px solid var(--text-accent) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-section-parameters,
+.markdown-rendered.swagger-api-doc .api-section-parameters {
+  border-left-color: var(--api-get) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-section-request,
+.markdown-rendered.swagger-api-doc .api-section-request {
+  border-left-color: var(--api-post) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-section-responses,
+.markdown-rendered.swagger-api-doc .api-section-responses {
+  border-left-color: var(--api-put) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-content-type,
+.markdown-rendered.swagger-api-doc .api-content-type {
+  display: inline-block !important;
+  margin: 0.5em 0 1em 0 !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  background: var(--background-secondary) !important;
+  border: 1px solid var(--api-soft-border) !important;
+  font-size: 0.9em !important;
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-table,
+.markdown-rendered.swagger-api-doc .api-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1em 0 !important;
+  font-size: 0.92em !important;
+  table-layout: auto !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-table th,
+.markdown-rendered.swagger-api-doc .api-table th {
+  background: var(--background-secondary) !important;
+  color: var(--text-normal) !important;
+  font-weight: 700 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-table th,
+.markdown-preview-view.swagger-api-doc .api-table td,
+.markdown-rendered.swagger-api-doc .api-table th,
+.markdown-rendered.swagger-api-doc .api-table td {
+  border: 1px solid var(--api-soft-border) !important;
+  padding: 8px 10px !important;
+  vertical-align: top !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-parameters-table td:first-child,
+.markdown-rendered.swagger-api-doc .api-parameters-table td:first-child {
+  width: 32% !important;
+  white-space: normal !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-responses-table td:first-child,
+.markdown-rendered.swagger-api-doc .api-responses-table td:first-child {
+  width: 120px !important;
+}
+
+/* ==========================================================================
+   Examples
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-example,
+.markdown-rendered.swagger-api-doc .api-example {
+  margin: 1em 0 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-example-title,
+.markdown-rendered.swagger-api-doc .api-example-title {
+  font-weight: 800 !important;
+  margin: 0 0 0.4em 0 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-example pre,
+.markdown-rendered.swagger-api-doc .api-example pre {
+  border-radius: var(--api-border-radius) !important;
+  border: 1px solid var(--api-soft-border) !important;
+  padding: 12px !important;
+  overflow-x: auto !important;
+  background: var(--code-background) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-example code,
+.markdown-rendered.swagger-api-doc .api-example code {
+  white-space: pre !important;
+}
+
+/* ==========================================================================
+   Schemas
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-schema-card,
+.markdown-rendered.swagger-api-doc .api-schema-card {
+  margin: 1em 0 1.5em 0 !important;
+  padding: 14px !important;
+  border: 1px solid var(--api-soft-border) !important;
+  border-radius: var(--api-border-radius) !important;
+  background: var(--background-primary-alt) !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-array-label,
+.markdown-rendered.swagger-api-doc .api-array-label {
+  font-weight: 700 !important;
+  margin: 0.5em 0 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-primitive-schema,
+.markdown-rendered.swagger-api-doc .api-primitive-schema {
+  margin: 0.5em 0 1em 0 !important;
+}
+
+/* ==========================================================================
+   Required / deprecated / external links
+   ========================================================================== */
+
+.markdown-preview-view.swagger-api-doc .api-required,
+.markdown-rendered.swagger-api-doc .api-required {
+  color: var(--api-delete) !important;
+  font-weight: 800 !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-deprecated,
+.markdown-rendered.swagger-api-doc .api-deprecated {
+  margin: 1em 0 !important;
+  padding: 10px 14px !important;
+  border-left: 4px solid var(--api-delete) !important;
+  background: rgba(249, 62, 62, 0.08) !important;
+  border-radius: 6px !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-deprecated strong,
+.markdown-rendered.swagger-api-doc .api-deprecated strong {
+  display: block !important;
+  color: var(--api-delete) !important;
+  margin-bottom: 4px !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-external-doc,
+.markdown-rendered.swagger-api-doc .api-external-doc {
+  display: inline-block !important;
+  margin: 0.5em 0 1em 0 !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  background: rgba(97, 175, 254, 0.08) !important;
+  border: 1px solid rgba(97, 175, 254, 0.4) !important;
+  text-decoration: none !important;
+}
+
+.markdown-preview-view.swagger-api-doc .api-operation-separator,
+.markdown-rendered.swagger-api-doc .api-operation-separator {
+  margin: 2em 0 !important;
+  border-bottom: 1px solid var(--api-soft-border) !important;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 700px) {
+  .markdown-preview-view.swagger-api-doc .api-operation,
+  .markdown-rendered.swagger-api-doc .api-operation {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .markdown-preview-view.swagger-api-doc .api-method,
+  .markdown-rendered.swagger-api-doc .api-method {
+    min-width: 96px !important;
+  }
+
+  .markdown-preview-view.swagger-api-doc .api-table,
+  .markdown-rendered.swagger-api-doc .api-table {
+    font-size: 0.86em !important;
+  }
 }
