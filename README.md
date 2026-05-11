@@ -1,62 +1,29 @@
 # OpenAPI Swagger-like Markdown Generator
 
-Generador simple de documentación API en Markdown a partir de un fichero `swagger.json` u `openapi.json`.
+Generador de documentacion API en Markdown a partir de un fichero `swagger.json` u `openapi.json`.
 
-El objetivo de esta herramienta es generar una documentación en Markdown con una estructura similar a Swagger UI, pero compatible con Obsidian y exportable a PDF.
+El objetivo del proyecto es producir una documentacion parecida a Swagger UI, pero pensada para Obsidian, para lectura estatica y para exportacion a PDF. No intenta reproducir controles interactivos como `Try it out`, campos de texto o botones `Execute`, porque esos elementos no funcionan dentro de un PDF.
 
-## Características
+## Caracteristicas
 
-- Convierte ficheros Swagger/OpenAPI en documentación Markdown.
-- Soporta Swagger 2.0 y OpenAPI 3.x.
-- Agrupa las operaciones por `tags`.
-- Genera secciones para:
-  - información general de la API;
-  - servidores;
-  - endpoints;
-  - parámetros;
-  - request body;
-  - responses;
-  - examples;
-  - schemas.
-- Añade bloques HTML simples con clases específicas `api-*` para poder aplicar estilos tipo Swagger en Obsidian.
-- Compatible con CSS snippets de Obsidian.
-- Permite generar documentación completa o fragmentos reutilizables.
-- Permite filtrar endpoints por:
-  - `tag`;
-  - `operationId`;
-  - método HTTP;
-  - path.
-- Añade gestión de errores y validaciones de entrada.
-- Informa al usuario mediante mensajes claros si el JSON, los argumentos o la especificación no son válidos.
-- Muestra warnings no bloqueantes para referencias `$ref` no resueltas.
-- Pensado para documentación técnica exportable a PDF.
+- Convierte Swagger 2.0 y OpenAPI 3.x a Markdown.
+- Genera documentacion completa (`full`) o fragmentos reutilizables (`fragment`).
+- Agrupa operaciones por `tags`.
+- Permite filtrar por `tag`, `operationId`, metodo HTTP y path.
+- Genera secciones para informacion general, servidores, endpoints, parametros, request body, responses, examples y schemas.
+- Usa headings Markdown reales para que Obsidian y los exportadores PDF puedan crear indice y marcadores.
+- Mantiene bloques HTML controlados con clases `api-*` para aplicar estilos tipo Swagger con CSS snippets de Obsidian.
+- Sanitiza HTML enriquecido en `description`, incluyendo tablas, listas, `code`, `tt`, enlaces y saltos de linea.
+- Renderiza tablas HTML de descriptions de forma segura para PDF, evitando que se salgan del margen.
+- Renderiza todos los `examples` nombrados de request bodies, responses y parametros.
+- Renderiza el detalle de cada response status code, no solo el primer response.
+- Genera ejemplos como bloques Markdown fenced, por ejemplo ` ```json ` o ` ```xml `, para que el codigo se vea limpio y no aparezca como `&lt;env:Header&gt;` en el Markdown.
+- Resuelve `$ref` internos y muestra warnings para `$ref` no resueltos o externos.
 
 ## Requisitos
 
-Necesitas tener instalado:
-
 - Node.js 18 o superior.
 - npm, pnpm o yarn.
-
-Puedes comprobar tu versión de Node.js con:
-
-```bash
-node -v
-```
-
-## Instalación desde GitHub
-
-Clona el repositorio:
-
-```bash
-git clone https://github.com/Krontur/swaggerjson_to_markdown.git
-```
-
-Entra en la carpeta del proyecto:
-
-```bash
-cd swaggerjson_to_markdown
-```
 
 Instala las dependencias:
 
@@ -64,225 +31,254 @@ Instala las dependencias:
 npm install
 ```
 
-O si usas `pnpm`:
+Los ejemplos del README usan `node` directamente para evitar duplicar comandos. Si prefieres usar el script del `package.json`, este formato es equivalente:
 
 ```bash
-pnpm install
+npm run api:docs -- <input.json> <output.md> [options]
 ```
 
-## Uso básico
+El mismo comando es compatible con pnpm/yarn usando el equivalente de cada gestor:
 
-Ejecuta el generador indicando:
+```bash
+pnpm run api:docs -- <input.json> <output.md> [options]
+yarn api:docs <input.json> <output.md> [options]
+```
 
-1. el fichero JSON de entrada;
-2. el fichero Markdown de salida.
-
-Con Node.js directamente:
+## Uso basico
 
 ```bash
 node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api.swagger-like.md
 ```
 
-Ejemplo:
+Ejemplo con el fichero de este proyecto:
 
 ```bash
-node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/petstore.json ./docs/generated/petstore.md
+node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/20260506_MW_api-docs.json ./docs/generated/20260506_MW_api-docs_full.md --mode full
 ```
 
-## Uso con npm
+## Opciones
 
-Si el `package.json` contiene este script:
-
-```json
-{
-  "type": "module",
-  "scripts": {
-    "api:docs": "node ./scripts/openapi-swagger-like-md.mjs"
-  }
-}
+```text
+--mode full|fragment          Output mode. Default: full
+--tag <tagName>               Generate only operations with this tag
+--operation-id <operationId>  Generate only one operation by operationId
+--method <HTTP_METHOD>        Filter by HTTP method: GET, POST, PUT, DELETE, PATCH...
+--path <apiPath>              Filter by API path, for example /pet/{petId}
+--headings                    Generate Markdown headings for PDF bookmarks. Default: enabled
+--no-headings                 Disable Markdown headings and use HTML title blocks only
+--heading-offset <1..5>       Base heading level for fragments. Default: 2
+--help, -h                    Show help
 ```
 
-Puedes ejecutar:
-
-```bash
-npm run api:docs -- ./swagger.json ./api.swagger-like.md
-```
-
-Ejemplo:
-
-```bash
-npm run api:docs -- ./docs/openapi/petstore.json ./docs/generated/petstore.md
-```
-
-## Uso con pnpm
-
-```bash
-pnpm run api:docs -- ./swagger.json ./api.swagger-like.md
-```
-
-Ejemplo:
-
-```bash
-pnpm run api:docs -- ./docs/openapi/petstore.json ./docs/generated/petstore.md
-```
-
-## Ayuda del comando
-
-Puedes mostrar la ayuda del generador con:
+Ver ayuda:
 
 ```bash
 node ./scripts/openapi-swagger-like-md.mjs --help
 ```
 
-O también:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs -h
-```
-
-La ayuda muestra los argumentos obligatorios, opciones disponibles y ejemplos de uso.
-
-## Modos de generación
-
-La herramienta permite generar dos tipos de salida:
-
-- `full`: genera una documentación completa de la API.
-- `fragment`: genera un fragmento reutilizable para incrustarlo dentro de otra nota Markdown de Obsidian.
+## Modos de generacion
 
 ### Modo full
 
-El modo `full` genera un documento completo con:
+Genera una documentacion completa con:
 
-- información general de la API;
+- frontmatter de Obsidian;
+- titulo principal;
+- informacion general de la API;
 - servidores;
 - operaciones agrupadas por tags;
-- schemas;
-- frontmatter de Obsidian con `cssclasses`.
-
-Ejemplo:
+- schemas.
 
 ```bash
 node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api-full.md --mode full
 ```
 
-También puedes omitir `--mode full`, ya que es el modo por defecto:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api-full.md
-```
-
-La salida generada incluye al inicio:
+El documento generado incluye:
 
 ```md
 ---
 cssclasses:
   - swagger-api-doc
+  - swagger-api-full
 ---
-```
-
-y envuelve el contenido principal en:
-
-```html
-<div class="api-full-document">
-...
-</div>
 ```
 
 ### Modo fragment
 
-El modo `fragment` genera un bloque reutilizable para insertarlo en una documentación mayor.
-
-Ejemplo:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api-fragment.md --mode fragment
-```
-
-La salida generada también incluye:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-y envuelve el contenido del fragmento en:
-
-```html
-<div class="api-fragment">
-...
-</div>
-```
-
-Esto permite aplicar estilos específicos al bloque API sin modificar el estilo del resto del documento, siempre que la nota donde se visualiza tenga la clase CSS `swagger-api-doc`.
-
-## Filtros disponibles
-
-Además de generar toda la API, puedes generar fragmentos específicos usando filtros.
-
-### Filtrar por tag
-
-Genera solo las operaciones asociadas a un tag concreto:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./pet-fragment.md --mode fragment --tag pet
-```
-
-Ejemplo con `pnpm`:
-
-```bash
-pnpm run api:docs -- ./swagger.json ./pet-fragment.md --mode fragment --tag pet
-```
-
-### Filtrar por operationId
-
-Genera solo una operación concreta usando su `operationId`:
+Genera un fragmento reutilizable para incrustar en otra nota de Obsidian.
 
 ```bash
 node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./add-pet.md --mode fragment --operation-id addPet
 ```
 
-Ejemplo:
+El fragmento generado incluye:
 
-```bash
-pnpm run api:docs -- ./swagger.json ./add-pet.md --mode fragment --operation-id addPet
+```md
+---
+cssclasses:
+  - swagger-api-doc
+  - swagger-api-fragment
+---
 ```
 
-### Filtrar por método HTTP y path
+Si se incrusta con `![[...]]`, la nota padre tambien debe tener `cssclasses: swagger-api-doc`.
 
-Genera solo una operación concreta usando método HTTP y path:
+## Filtros
+
+Generar solo un tag:
+
+```bash
+node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./pet.md --mode fragment --tag pet
+```
+
+Generar solo una operacion por `operationId`:
+
+```bash
+node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./add-pet.md --mode fragment --operation-id addPet
+```
+
+Generar solo una operacion por metodo y path:
 
 ```bash
 node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./post-pet.md --mode fragment --method POST --path /pet
 ```
 
-Ejemplo:
+## Contenido generado
 
-```bash
-pnpm run api:docs -- ./swagger.json ./post-pet.md --mode fragment --method POST --path /pet
+Para cada operacion, la salida incluye contenido estatico equivalente a lo que se consulta en Swagger UI:
+
+- summary y description;
+- metodo HTTP y path;
+- parametros, incluyendo ejemplos declarados en `example` o `examples`;
+- request body con description, schema y todos los examples nombrados;
+- responses con tabla resumen;
+- detalle por cada status code;
+- content-type de cada response;
+- examples nombrados de cada response;
+- modelo/schema de cada response;
+- schemas globales.
+
+Los controles interactivos de Swagger UI no se generan, porque no aportan valor en Obsidian/PDF:
+
+- `Try it out`;
+- inputs editables;
+- botones `Execute`;
+- selectores interactivos.
+
+## Examples y codigo XML/JSON
+
+Los examples se generan como bloques Markdown fenced:
+
+````md
+```xml
+<env:Header>
+  <ns3:Action>...</ns3:Action>
+</env:Header>
 ```
+````
 
-### Filtros sin coincidencias
-
-Si los filtros no encuentran ninguna operación, el generador detiene la ejecución e informa del problema.
-
-Ejemplo:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./missing.md --mode fragment --operation-id doesNotExist
-```
-
-Salida esperada:
+Esto evita que el Markdown contenga entidades visibles como:
 
 ```text
-Input error: No operations matched the provided filters.
---operation-id doesNotExist
+&lt;env:Header&gt;
 ```
 
-## Estructura recomendada
+En el PDF se vera el XML/JSON como codigo, sin convertir las etiquetas en HTML real.
 
-Una estructura sencilla para trabajar con Obsidian sería:
+## Rich text en descriptions
+
+Las descriptions de OpenAPI pueden contener HTML. El generador lo sanitiza y conserva contenido util como:
+
+- parrafos;
+- saltos de linea;
+- listas;
+- tablas;
+- `code` y `tt`;
+- enlaces seguros `http`, `https` y `mailto`;
+- `colspan` y `rowspan` en tablas.
+
+Las tablas de descriptions reciben la clase `api-description-table` y el CSS las fuerza a ser compatibles con PDF:
+
+- `table-layout: fixed`;
+- `width: 100%`;
+- `word-break: break-word`;
+- `overflow-wrap: anywhere`;
+- tamano de fuente reducido en impresion.
+
+## CSS en Obsidian
+
+El proyecto incluye el snippet:
+
+```text
+css/swagger-api-doc.css
+```
+
+Para activarlo en Obsidian:
+
+1. Copia `css/swagger-api-doc.css` a:
+
+```text
+TU_VAULT/.obsidian/snippets/swagger-api-doc.css
+```
+
+2. Abre Obsidian.
+3. Ve a `Settings -> Appearance -> CSS snippets`.
+4. Recarga snippets.
+5. Activa `swagger-api-doc`.
+
+El documento generado ya incluye el frontmatter necesario:
+
+```md
+---
+cssclasses:
+  - swagger-api-doc
+  - swagger-api-full
+---
+```
+
+Para fragmentos embebidos, la nota padre tambien debe incluir:
+
+```md
+---
+cssclasses:
+  - swagger-api-doc
+---
+```
+
+## Exportar a PDF con marcadores
+
+Recomendacion importante: para que el PDF contenga marcadores/bookmarks fiables, exporta desde Obsidian usando el plugin **Better Export PDF**.
+
+El exportador PDF nativo de Obsidian no genera bien los marcadores en algunos casos, especialmente cuando el documento combina Markdown, HTML, tablas grandes, bloques de codigo y fragmentos embebidos.
+
+Para obtener marcadores correctos:
+
+1. Genera un documento en modo `full`.
+2. Abre directamente ese `.md` generado en Obsidian.
+3. Asegurate de tener activado el CSS snippet `swagger-api-doc`.
+4. Exporta con **Better Export PDF**.
+
+Ejemplo recomendado:
+
+```bash
+node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/20260506_MW_api-docs.json ./docs/generated/20260506_MW_api-docs_full.md --mode full
+```
+
+Exporta este fichero directamente:
+
+```text
+docs/generated/20260506_MW_api-docs_full.md
+```
+
+Evita exportar una nota padre que solo embeba el documento con:
+
+```md
+![[docs/generated/20260506_MW_api-docs_full.md]]
+```
+
+Los fragments son utiles para documentacion manual, pero para un PDF formal con marcadores es mas fiable exportar el fichero `full` directamente.
+
+## Estructura recomendada
 
 ```text
 mi-vault/
@@ -290,767 +286,162 @@ mi-vault/
     openapi/
       swagger.json
     generated/
-      api.swagger-like.md
+      api-full.md
       fragments/
         add-pet.md
-        get-pet-by-id.md
-  scripts/
-    openapi-swagger-like-md.mjs
   css/
     swagger-api-doc.css
-  package.json
 ```
 
-Para generar la documentación completa:
+Generar documentacion completa:
 
 ```bash
-pnpm run api:docs -- ./docs/openapi/swagger.json ./docs/generated/api.swagger-like.md --mode full
+node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/swagger.json ./docs/generated/api-full.md --mode full
 ```
 
-Para generar un fragmento concreto:
+Generar un fragmento:
 
 ```bash
-pnpm run api:docs -- ./docs/openapi/swagger.json ./docs/generated/fragments/add-pet.md --mode fragment --operation-id addPet
+node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/swagger.json ./docs/generated/fragments/add-pet.md --mode fragment --operation-id addPet
 ```
 
-Después puedes abrir el fichero generado directamente en Obsidian:
-
-```text
-docs/generated/api.swagger-like.md
-```
-
-O incrustarlo desde otra nota:
-
-```md
-![[docs/generated/api.swagger-like.md]]
-```
-
-## Uso de fragmentos dentro de documentación manual
-
-Puedes generar fragmentos API e intercalarlos dentro de documentación funcional escrita manualmente.
-
-Por ejemplo:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-
-# Guía funcional de integración
-
-Esta sección explica cómo una aplicación externa debe crear una mascota en el sistema.
-
-Antes de invocar el endpoint, el cliente debe preparar un cuerpo JSON válido.
-
-![[docs/generated/fragments/add-pet.md]]
-
-Después de recibir la petición, el backend validará el payload y devolverá el estado correspondiente.
-```
-
-Es importante que la nota donde se visualiza el fragmento tenga:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-El CSS está diseñado para aplicar estilos solo a elementos con clases `api-*`, por lo que el texto normal de la documentación mantiene su estilo propio.
-
-## Ejemplo de salida
-
-Para una operación como:
-
-```json
-{
-  "summary": "Add a new pet to the store",
-  "method": "POST",
-  "path": "/pet"
-}
-```
-
-La herramienta genera una estructura similar a:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-
-<div class="api-fragment">
-
-<div class="api-operation api-post">
-  <span class="api-method">POST</span>
-  <code class="api-path">/pet</code>
-</div>
-
-<div class="api-operation-title">Add a new pet to the store</div>
-
-<div class="api-section api-section-request">Request Body</div>
-
-<div class="api-content-type">Content-Type: <code>application/json</code></div>
-
-<div class="api-section api-section-responses">Responses</div>
-
-<table class="api-table api-responses-table">
-  <thead>
-    <tr>
-      <th>Code</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>200</code></td>
-      <td>successful operation</td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
-```
-
-## Soporte para OpenAPI 3.x complejos
-
-El generador incluye soporte mejorado para estructuras OpenAPI 3.x habituales:
-
-- `components.schemas`;
-- `components.parameters`;
-- `requestBody`;
-- `responses`;
-- `content`;
-- `examples`;
-- `$ref` internos;
-- `allOf`;
-- `oneOf`;
-- `anyOf`;
-- arrays;
-- objetos anidados;
-- `additionalProperties`.
-
-### `$ref` internos
-
-El generador resuelve referencias internas como:
-
-```json
-{
-  "$ref": "#/components/schemas/Pet"
-}
-```
-
-También soporta referencias Swagger 2.0 como:
-
-```json
-{
-  "$ref": "#/definitions/Pet"
-}
-```
-
-### `$ref` no resueltos
-
-Si una referencia interna no puede resolverse, el generador no detiene necesariamente la generación. En su lugar, muestra un warning:
-
-```text
-Warnings:
-- Unresolved internal $ref: #/components/schemas/MissingSchema
-```
-
-Esto permite generar documentación parcial y detectar problemas en el contrato OpenAPI.
-
-### `$ref` externos
-
-Actualmente, los `$ref` externos a otros ficheros o URLs no se resuelven.
-
-Ejemplos no resueltos:
-
-```json
-{
-  "$ref": "./schemas/Pet.json"
-}
-```
-
-```json
-{
-  "$ref": "https://example.com/schemas/Pet.json"
-}
-```
-
-En estos casos, el generador muestra un warning:
-
-```text
-Warnings:
-- External file $ref is not resolved: ./schemas/Pet.json
-```
-
-o:
-
-```text
-Warnings:
-- External or remote $ref is not resolved: https://example.com/schemas/Pet.json
-```
-
-## Gestión de errores
-
-El generador incluye validaciones para detectar problemas antes o durante la generación.
-
-Cuando se produce un error de entrada o configuración, el proceso termina con código de salida `1`.
-
-### Fichero de entrada inexistente
-
-Comando:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./missing.json ./api.md
-```
-
-Salida:
-
-```text
-Input error: Input file not found: /ruta/absoluta/missing.json
-```
-
-### JSON inválido
-
-Si el fichero JSON no es válido:
-
-```text
-Input error: Invalid JSON file: /ruta/absoluta/swagger.json
-Expected double-quoted property name in JSON at position 67
-```
-
-### Documento sin `openapi` ni `swagger`
-
-Si el fichero no parece una especificación OpenAPI o Swagger:
-
-```text
-Input error: The document is neither OpenAPI nor Swagger. Missing 'openapi' or 'swagger' field.
-```
-
-### Documento sin `info`
-
-Si falta el objeto `info`:
-
-```text
-Input error: Missing required 'info' object.
-```
-
-### Documento sin `paths`
-
-Si falta el objeto `paths`:
-
-```text
-Input error: Missing or invalid required 'paths' object.
-```
-
-### Documento sin operaciones
-
-Si existe `paths`, pero no contiene operaciones HTTP:
-
-```text
-Input error: No operations found under 'paths'.
-```
-
-### Modo inválido
-
-Si se indica un modo no soportado:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api.md --mode invalid
-```
-
-Salida:
-
-```text
-Input error: Invalid mode: invalid. Allowed values: full, fragment.
-```
-
-### Opción desconocida
-
-Si se usa una opción no soportada:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api.md --unknown
-```
-
-Salida:
-
-```text
-Input error: Unknown option: --unknown
-```
-
-### Opción sin valor
-
-Si una opción espera valor y no se proporciona:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./api.md --tag
-```
-
-Salida:
-
-```text
-Input error: Missing value for option --tag.
-```
-
-## Warnings
-
-Los warnings no detienen la generación. Sirven para informar de posibles problemas en la especificación.
-
-Ejemplos:
-
-```text
-Warnings:
-- OpenAPI version '3.0.0' detected. The generator is mainly tested with OpenAPI 3.x.
-- Unresolved internal $ref: #/components/schemas/MissingSchema
-- External file $ref is not resolved: ./schemas/Pet.json
-```
-
-## Estilo Swagger en Obsidian
-
-El proyecto incluye un archivo CSS con estilos tipo Swagger para mejorar la visualización del Markdown generado dentro de Obsidian.
-
-El archivo se encuentra en:
-
-```text
-css/swagger-api-doc.css
-```
-
-Para usarlo en Obsidian:
-
-1. Copia el archivo `css/swagger-api-doc.css` dentro de la carpeta de snippets de tu vault:
-
-```text
-TU_VAULT/.obsidian/snippets/swagger-api-doc.css
-```
-
-2. Abre Obsidian.
-
-3. Ve a:
-
-```text
-Settings → Appearance → CSS snippets
-```
-
-4. Pulsa en recargar snippets.
-
-5. Activa el snippet `swagger-api-doc`.
-
-Una vez activado, abre el Markdown generado en **Reading View** para ver la documentación con un estilo similar a Swagger UI.
-
-> Nota: los estilos solo afectan a las notas que tengan `cssclasses: swagger-api-doc` y a los elementos generados con clases `api-*`.
-
-## Uso de `cssclasses`
-
-Para que Obsidian aplique correctamente los estilos del snippet, el documento debe incluir al inicio:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-El generador añade este bloque automáticamente tanto en modo `full` como en modo `fragment`.
-
-Si incrustas un fragmento dentro de otra nota, la nota principal también debe incluir:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
+## Errores y warnings
+
+El proceso termina con codigo `1` para errores de entrada o configuracion:
+
+- fichero inexistente;
+- JSON invalido;
+- documento sin `openapi` ni `swagger`;
+- documento sin `info`;
+- documento sin `paths`;
+- modo no valido;
+- opcion desconocida;
+- filtros sin coincidencias.
+
+Los warnings no detienen la generacion. Se usan para casos como:
+
+- `$ref` interno no resuelto;
+- `$ref` externo a otro fichero;
+- `$ref` remoto por URL.
 
 Ejemplo:
 
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-
-# Documentación funcional
-
-Texto normal de la documentación.
-
-![[docs/generated/fragments/add-pet.md]]
-
-Más texto normal.
-```
-
-El CSS no modifica estilos globales como `h1`, `h2`, `table`, `pre` o `code` de forma general. Solo aplica estilos a elementos específicos del generador:
-
 ```text
-.api-operation
-.api-method
-.api-path
-.api-section
-.api-table
-.api-example
-.api-schema-card
-.api-required
+Warnings:
+- Unresolved internal $ref: #/components/schemas/MissingSchema
+- External file $ref is not resolved: ./schemas/Pet.json
 ```
 
-Esto permite intercalar bloques Swagger dentro de documentación normal sin que todo el documento adopte el estilo Swagger.
+## Limitaciones conocidas
 
-## Exportar a PDF desde Obsidian
-
-Una vez generado el Markdown y activado el snippet CSS:
-
-1. Abre el fichero `.md` generado en Obsidian.
-2. Cambia a **Reading View**.
-3. Exporta la nota a PDF desde Obsidian.
-4. Comprueba que las tablas, bloques de código y estilos se renderizan correctamente.
-
-## Notas importantes
-
-Esta herramienta no pretende replicar Swagger UI al 100%. El objetivo es generar una documentación Markdown limpia, portable y exportable a PDF.
-
-El resultado visual depende del CSS aplicado en Obsidian. Sin el snippet CSS, el Markdown seguirá siendo funcional, pero tendrá un aspecto más básico.
-
-Para que los estilos HTML se apliquen correctamente en Obsidian, la nota debe incluir:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-Actualmente no se resuelven `$ref` externos a otros ficheros o URLs. Si necesitas ese caso, se recomienda preprocesar la especificación con una herramienta que haga bundle del OpenAPI en un único JSON.
+- No se resuelven `$ref` externos a otros ficheros.
+- No se resuelven `$ref` remotos por URL.
+- La generacion XML automatica es limitada; si el OpenAPI trae XML en examples, se conserva y se renderiza como codigo.
+- Schemas extremadamente complejos pueden requerir ajustes adicionales.
+- El resultado visual depende del snippet CSS y del tema activo de Obsidian.
 
 ## Problemas habituales
 
-### El comando no encuentra el fichero JSON
-
-Comprueba que la ruta del fichero de entrada es correcta:
-
-```bash
-node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/swagger.json ./docs/generated/api.md
-```
-
-### El JSON no es válido
-
-Valida el fichero antes de ejecutarlo. El script espera un JSON válido.
-
-### El documento no se reconoce como OpenAPI o Swagger
-
-Comprueba que el JSON contiene uno de estos campos:
-
-```json
-{
-  "openapi": "3.1.0"
-}
-```
-
-o:
-
-```json
-{
-  "swagger": "2.0"
-}
-```
-
 ### Los estilos no se ven en Obsidian
 
-Comprueba que el CSS snippet está activado:
+Comprueba:
 
-```text
-Settings → Appearance → CSS snippets
-```
+- que `swagger-api-doc.css` esta dentro de `.obsidian/snippets`;
+- que el snippet esta activado;
+- que estas en Reading View;
+- que la nota contiene `cssclasses: swagger-api-doc`.
 
-También asegúrate de estar en **Reading View**, no en Source Mode.
+### El PDF no tiene marcadores
 
-Además, comprueba que el documento tiene:
+Usa **Better Export PDF**. El exportador nativo de Obsidian puede no generar marcadores correctamente.
 
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
+Tambien comprueba que:
 
-Si estás usando fragmentos embebidos, comprueba que la nota principal donde se embebe el fragmento también tiene:
+- estas exportando el fichero generado en modo `full`;
+- el documento tiene headings Markdown reales;
+- no estas exportando una nota padre que embebe el documento generado.
 
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
+### Aparecen `&lt;` y `&gt;` en examples XML
 
-### El CSS está en la carpeta `css`, pero no se aplica
+En la version actual, los examples se generan como fenced code blocks y no deberian aparecer entidades como `&lt;env:Header&gt;` en el Markdown generado.
 
-Obsidian no carga automáticamente CSS desde una carpeta `css/`.
-
-Debes copiar el archivo:
-
-```text
-css/swagger-api-doc.css
-```
-
-a:
-
-```text
-TU_VAULT/.obsidian/snippets/swagger-api-doc.css
-```
-
-Después debes activarlo desde:
-
-```text
-Settings → Appearance → CSS snippets
-```
-
-### Los fragmentos se ven sin estilo al embeberlos
-
-Asegúrate de que la nota padre contiene:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-Ejemplo correcto:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-
-# Mi documentación
-
-Texto normal.
-
-![[docs/generated/fragments/add-pet.md]]
-```
-
-### Los filtros no generan ningún fichero útil
-
-Si usas filtros como `--tag`, `--operation-id`, `--method` o `--path`, comprueba que los valores existen exactamente igual en el JSON.
-
-Ejemplo:
+Regenera el documento:
 
 ```bash
-node ./scripts/openapi-swagger-like-md.mjs ./swagger.json ./fragment.md --mode fragment --operation-id addPet
-```
-
-Si `addPet` no existe como `operationId`, el generador mostrará:
-
-```text
-Input error: No operations matched the provided filters.
---operation-id addPet
+node ./scripts/openapi-swagger-like-md.mjs ./docs/openapi/20260506_MW_api-docs.json ./docs/generated/20260506_MW_api-docs_full.md --mode full
 ```
 
 ### Hay warnings de `$ref` no resueltos
 
-Si ves warnings de este tipo:
-
-```text
-Warnings:
-- Unresolved internal $ref: #/components/schemas/MissingSchema
-```
-
-significa que el JSON referencia un schema, parameter o response que no existe en el documento.
-
-Si ves warnings de este tipo:
-
-```text
-Warnings:
-- External file $ref is not resolved: ./schemas/Pet.json
-```
-
-significa que la especificación usa referencias externas, que actualmente no se resuelven.
-
-### Problemas instalando dependencias en Google Drive, OneDrive o Dropbox
-
-Evita instalar `node_modules` dentro de carpetas sincronizadas como:
-
-```text
-Google Drive
-OneDrive
-Dropbox
-G:\Mi unidad
-```
-
-Es recomendable trabajar en una carpeta local, por ejemplo:
-
-```text
-C:\Temp\openapi-md-generator
-```
-
-Después puedes copiar el Markdown generado a tu vault de Obsidian.
+Revisa que el schema, parameter o response referenciado existe en el JSON. Si usas referencias externas, haz bundle del OpenAPI antes de ejecutar este generador.
 
 ## Changelog
 
-### v0.4.0
+### v0.5.0
 
-#### Añadido
+#### Aniadido
 
-- Gestión de errores de usuario mediante mensajes claros.
-- Soporte para `--help` y `-h`.
-- Validación del fichero de entrada.
-- Validación de JSON inválido.
-- Validación de estructura mínima OpenAPI/Swagger:
-  - `openapi` o `swagger`;
-  - `info`;
-  - `paths`;
-  - operaciones HTTP dentro de `paths`.
-- Validación de modo `full` o `fragment`.
-- Validación de opciones desconocidas.
-- Validación de opciones sin valor.
-- Error controlado cuando los filtros no devuelven operaciones.
-- Sistema de warnings no bloqueantes.
-- Warnings para `$ref` internos no resueltos.
-- Warnings para `$ref` externos no soportados.
-- Soporte mejorado para OpenAPI 3.x complejos:
-  - `allOf`;
-  - `oneOf`;
-  - `anyOf`;
-  - `additionalProperties`;
-  - arrays;
-  - objects;
-  - schemas referenciados;
-  - requestBody;
-  - responses con content types.
-- Mejora de generación de ejemplos para:
-  - strings;
-  - integers;
-  - numbers;
-  - booleans;
-  - arrays;
-  - objects;
-  - date;
-  - date-time;
-  - binary;
-  - enums;
-  - defaults;
-  - additionalProperties.
+- Headings Markdown reales para generar indices y marcadores PDF.
+- Opcion `--headings`, `--no-headings` y `--heading-offset`.
+- Frontmatter diferenciado para `swagger-api-full` y `swagger-api-fragment`.
+- Sanitizado de rich text en descriptions.
+- Soporte para tablas HTML dentro de descriptions.
+- Soporte para todos los `examples` nombrados en request bodies y responses.
+- Soporte para examples en parametros.
+- Detalle por cada response status code.
+- Examples como fenced code blocks para JSON, XML y texto.
+- CSS mas robusto para PDF, tablas grandes y bloques de codigo.
+- Recomendacion de exportar PDFs con Better Export PDF para marcadores fiables.
 
 #### Cambiado
 
-- El script ahora termina con código de salida `1` ante errores de entrada o configuración.
-- Los errores inesperados muestran stack trace para facilitar depuración.
-- Los `$ref` no resueltos se reportan como warnings cuando no bloquean la generación.
-- Los schemas compuestos mediante `allOf` se normalizan para mostrar propiedades combinadas.
+- Los examples ya no se renderizan como `<pre><code>` HTML escapado, sino como bloques Markdown fenced.
+- Responses ya no muestran solo el primer schema/example; ahora recorren todos los status codes y content-types.
+- Las descriptions HTML se limpian sin romper tablas con comentarios HTML usados como separadores.
+- `compactJoin()` conserva separadores vacios para no romper headings Markdown.
 
 #### Limitaciones conocidas
 
-- No se resuelven `$ref` externos a otros ficheros.
-- No se resuelven `$ref` remotos por URL.
-- La generación XML es limitada.
-- El soporte para schemas extremadamente complejos puede requerir ajustes adicionales.
+- El exportador nativo de Obsidian puede no generar marcadores PDF correctamente.
+- Para PDFs finales se recomienda exportar el documento `full` directamente con Better Export PDF.
+
+### v0.4.0
+
+- Gestion de errores de usuario mediante mensajes claros.
+- Soporte para `--help` y `-h`.
+- Validacion del fichero de entrada y JSON invalido.
+- Validacion de estructura minima OpenAPI/Swagger.
+- Validacion de filtros y opciones.
+- Sistema de warnings no bloqueantes.
+- Soporte mejorado para `allOf`, `oneOf`, `anyOf`, arrays, objects y `additionalProperties`.
+- Resolucion de `$ref` internos.
 
 ### v0.3.0
 
-#### Añadido
-
-- Nuevo modo `full` para generar una documentación completa de la API.
-- Nuevo modo `fragment` para generar fragmentos reutilizables dentro de otras notas de Obsidian.
-- Soporte para frontmatter de Obsidian mediante:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-- Generación automática de contenedores diferenciados:
-  - `api-full-document` para documentación completa;
-  - `api-fragment` para fragmentos insertables.
-- Nuevos filtros de generación:
-  - `--tag`;
-  - `--operation-id`;
-  - `--method`;
-  - `--path`.
-- CSS adaptado para que solo se apliquen estilos a elementos con clases específicas `api-*`.
-- Soporte para intercalar fragmentos Swagger dentro de documentación Markdown normal.
-- Nueva estructura visual para:
-  - operaciones;
-  - parámetros;
-  - request body;
-  - responses;
-  - ejemplos;
-  - schemas;
-  - campos requeridos;
-  - operaciones deprecated.
-- Mejora del soporte para exportación a PDF desde Obsidian.
-
-#### Cambiado
-
-- Se deja de depender de estilos globales sobre elementos Markdown genéricos como `h1`, `h2`, `table` o `pre`.
-- El estilo visual se basa ahora en clases específicas como:
-  - `api-operation`;
-  - `api-method`;
-  - `api-path`;
-  - `api-table`;
-  - `api-section`;
-  - `api-example`;
-  - `api-schema-card`.
-- El documento generado usa HTML simple y controlado para mejorar la compatibilidad con Obsidian.
-- Los fragmentos generados están pensados para ser embebidos con `![[...]]`.
-
-#### Notas
-
-Para que los estilos se apliquen correctamente en Obsidian, la nota debe tener la clase CSS:
-
-```md
----
-cssclasses:
-  - swagger-api-doc
----
-```
-
-En caso de usar fragmentos embebidos, la nota padre también debe incluir esa clase.
+- Modo `full`.
+- Modo `fragment`.
+- Filtros por `tag`, `operationId`, metodo y path.
+- Frontmatter de Obsidian.
+- CSS snippet para estilo Swagger.
 
 ### v0.2.0
 
-#### Añadido
-
-- CSS snippet para estilo visual similar a Swagger UI.
-- Clases visuales para métodos HTTP:
-  - `GET`;
-  - `POST`;
-  - `PUT`;
-  - `DELETE`;
-  - `PATCH`;
-  - `OPTIONS`;
-  - `HEAD`.
-
-#### Cambiado
-
-- Mejora de la estructura HTML generada para facilitar el estilado en Obsidian.
+- CSS snippet inicial.
+- Colores por metodo HTTP.
+- Estructura visual para operaciones, tablas, ejemplos y schemas.
 
 ### v0.1.0
 
-#### Añadido
-
-- Primera versión del generador.
-- Conversión básica de Swagger/OpenAPI JSON a Markdown.
-- Generación de:
-  - información general;
-  - servidores;
-  - operaciones;
-  - parámetros;
-  - request body;
-  - responses;
-  - ejemplos;
-  - schemas.
+- Primera version.
+- Conversion basica de Swagger/OpenAPI JSON a Markdown.
 
 ## Licencia
 
-Este proyecto está publicado bajo licencia MIT.
-
-Puedes usarlo, modificarlo y distribuirlo libremente, siempre que mantengas el aviso de copyright y la licencia original.
+MIT.
 
 ## Autor
 
-Desarrollado por `Oscar González Tur`.
+Desarrollado por `Oscar Gonzalez Tur`.
 
 Repositorio:
 

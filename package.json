@@ -1,6 +1,16 @@
 {
+  "name": "swaggerjson_to_markdown",
+  "version": "0.5.0",
+  "description": "OpenAPI/Swagger JSON to Swagger-like Markdown generator.",
   "type": "module",
   "scripts": {
     "api:docs": "node ./scripts/openapi-swagger-like-md.mjs"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "sanitize-html": "^2.17.3"
   }
 }
